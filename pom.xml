@@ -22,6 +22,7 @@
         <springdoc.version>2.8.9</springdoc.version>
         <confluent.version>7.6.1</confluent.version>
         <avro.version>1.11.3</avro.version>
+        <project.deploy.directory>C:/micro/proyecto/SERVICIOS/core</project.deploy.directory>
     </properties>
 
     <repositories>
@@ -216,6 +217,13 @@
 
     </dependencies>
 
+    <distributionManagement>
+        <repository>
+            <id>dummy</id>
+            <url>file:./dist</url>
+        </repository>
+    </distributionManagement>
+
     <build>
         <plugins>
 
@@ -325,6 +333,29 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
 
+            <!-- DEPLOY LOCALHOST -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <id>copy-jar</id>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <mkdir dir="${project.deploy.directory}"/>
+                                <copy
+                                        file="${project.build.directory}/${project.artifactId}-${project.version}.jar"
+                                        todir="${project.deploy.directory}"/>
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 

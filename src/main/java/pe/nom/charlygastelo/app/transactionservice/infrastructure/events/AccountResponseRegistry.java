@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import pe.nom.charlygastelo.app.shared.avro.dto.AccountResponseEvent;
 import pe.nom.charlygastelo.app.transactionservice.domain.exception.AccountNotFoundException;
 import pe.nom.charlygastelo.app.transactionservice.domain.model.Account;
+import pe.nom.charlygastelo.app.transactionservice.domain.model.AccountType;
 
 @Component
 @Slf4j
@@ -51,7 +52,7 @@ public class AccountResponseRegistry {
                 event.getAccountId().toString(),
                 event.getCustomerId().toString(),
                 event.getNumber().toString(),
-                event.getType().toString(),
+                AccountType.valueOf(event.getType().toString()),
                 java.math.BigDecimal.valueOf(event.getBalance()),
                 event.getActive()
         );

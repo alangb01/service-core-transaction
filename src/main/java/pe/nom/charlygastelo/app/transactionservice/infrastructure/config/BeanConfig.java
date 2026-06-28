@@ -4,10 +4,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import lombok.RequiredArgsConstructor;
-import pe.nom.charlygastelo.app.transactionservice.application.usecase.CreateTransactionUseCase;
-import pe.nom.charlygastelo.app.transactionservice.application.usecase.DeleteTransactionUseCase;
-import pe.nom.charlygastelo.app.transactionservice.application.usecase.GetTransactionUseCase;
-import pe.nom.charlygastelo.app.transactionservice.application.usecase.ListTransactionsUseCase;
+import pe.nom.charlygastelo.app.transactionservice.application.usecase.*;
 import pe.nom.charlygastelo.app.transactionservice.domain.port.TransactionEventProducerPort;
 import pe.nom.charlygastelo.app.transactionservice.domain.port.TransactionRepositoryPort;
 
@@ -49,6 +46,20 @@ public class BeanConfig {
                 repository,
                 producer
         );
+    }
+
+    @Bean
+    public CompleteTransactionUseCase completeTransactionUseCase(
+            TransactionRepositoryPort repository) {
+
+        return new CompleteTransactionUseCase(repository);
+    }
+
+    @Bean
+    public FailTransactionUseCase failTransactionUseCase(
+            TransactionRepositoryPort repository) {
+
+        return new FailTransactionUseCase(repository);
     }
 
 }

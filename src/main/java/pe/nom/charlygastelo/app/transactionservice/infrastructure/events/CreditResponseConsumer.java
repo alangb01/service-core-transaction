@@ -19,15 +19,27 @@ public class CreditResponseConsumer {
             topics = "${topic.credit-response}",
             groupId = "transaction-service")
     public void consume(String message) {
+        try {
+            log.debug("CreditResponseEvent raw message received");
 
-        CreditResponseEvent event =
-                deserializer.deserialize(
-                        message,
-                        CreditResponseEvent.class,
-                        CreditResponseEvent.getClassSchema());
+            CreditResponseEvent event =
+                    deserializer.deserialize(
+                            message,
+                            CreditResponseEvent.class,
+                            CreditResponseEvent.getClassSchema()
+                    );
 
-        registry.complete(event);
+            log.info("CreditResponseEvent received. correlationId={}, found={}, creditId={}",
+                    event.getCorrelationId(),
+                    event.getFound(),
+                    event.getCreditId());
 
+            registry.complete(event);
+
+        }
+        catch (Exception e) {
+            log.error("Error processing CreditResponseEvent", e);
+        }
     }
 
 }

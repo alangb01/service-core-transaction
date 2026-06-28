@@ -19,15 +19,27 @@ public class AccountResponseConsumer {
             topics = "${topic.account-response}",
             groupId = "transaction-service")
     public void consume(String message) {
+        try {
+            log.debug("AccountResponseEvent raw message received");
 
-        AccountResponseEvent event =
-                deserializer.deserialize(
-                        message,
-                        AccountResponseEvent.class,
-                        AccountResponseEvent.getClassSchema());
+            AccountResponseEvent event =
+                    deserializer.deserialize(
+                            message,
+                            AccountResponseEvent.class,
+                            AccountResponseEvent.getClassSchema()
+                    );
 
-        registry.complete(event);
+            log.info("AccountResponseEvent received. correlationId={}, found={}, accountId={}",
+                    event.getCorrelationId(),
+                    event.getFound(),
+                    event.getAccountId());
 
+            registry.complete(event);
+
+        }
+        catch (Exception e) {
+            log.error("Error processing AccountResponseEvent", e);
+        }
     }
 
 }
