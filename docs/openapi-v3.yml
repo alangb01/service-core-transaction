@@ -1,0 +1,79 @@
+openapi: 3.0.3
+info:
+  title: Transaction Service API
+  version: v3
+  description: Event-driven transaction operations - Project III.
+
+paths:
+  /transactions/debit-card/payments:
+    post:
+      summary: Perform a payment using a debit card
+      description: Registers a debit card payment and emits a Kafka event.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DebitCardPaymentRequest'
+      responses:
+        '201':
+          description: Debit card payment processed
+
+  /transactions/yanki/payments:
+    post:
+      summary: Perform a Yanki wallet payment
+      description: Registers a Yanki wallet payment and emits a Kafka event.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/YankiPaymentRequest'
+      responses:
+        '201':
+          description: Yanki payment processed
+
+  /transactions/third-party-credit/payments:
+    post:
+      summary: Perform a third-party credit payment
+      description: Allows a customer to pay another customer's credit. Emits a Kafka event.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ThirdPartyCreditPaymentRequest'
+      responses:
+        '201':
+          description: Third-party credit payment processed
+
+components:
+  schemas:
+    DebitCardPaymentRequest:
+      type: object
+      required: [debitCardId, accountId, amount]
+      properties:
+        debitCardId: { type: string }
+        accountId: { type: string }
+        amount: { type: number }
+        description: { type: string }
+
+    YankiPaymentRequest:
+      type: object
+      required: [walletId, phoneNumber, amount]
+      properties:
+        walletId: { type: string }
+        phoneNumber: { type: string }
+        amount: { type: number }
+        direction:
+          type: string
+          enum: [SEND, RECEIVE]
+
+    ThirdPartyCreditPaymentRequest:
+      type: object
+      required: [creditId, payerCustomerId, amount]
+      properties:
+        creditId: { type: string }
+        payerCustomerId: { type: string }
+        amount: { type: number }
+        description: { type: string }

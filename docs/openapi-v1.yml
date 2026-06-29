@@ -1,0 +1,8 @@
+openapi: 3.0.3
+info:
+  title: Transaction Service API
+  version: v1
+  description: No REST endpoints for Project I. Service not yet created.
+
+paths: {}
+components: {}

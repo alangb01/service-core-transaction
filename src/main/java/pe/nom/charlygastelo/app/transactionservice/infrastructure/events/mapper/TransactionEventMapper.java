@@ -26,8 +26,16 @@ public class TransactionEventMapper {
                 .setCustomerId(value(transaction.customerId()))
                 .setSourceProductId(value(transaction.sourceProductId()))
                 .setTargetProductId(value(transaction.targetProductId()))
-                .setSourceProductType(transaction.sourceProductType().name())
-                .setTargetProductType(transaction.targetProductType().name())
+                .setSourceProductType(
+                        transaction.sourceProductType() != null
+                                ? transaction.sourceProductType().name()
+                                : null
+                )
+                .setTargetProductType(
+                        transaction.targetProductType() != null
+                                ? transaction.targetProductType().name()
+                                : null
+                )
                 .setTransactionType(transaction.type().name())
                 .setStatus(transaction.status().name())
                 .setAmount(transaction.amount().doubleValue())
@@ -35,6 +43,7 @@ public class TransactionEventMapper {
                 .setDescription(value(transaction.description()))
                 .build();
     }
+
 
     public TransactionCompletedEvent toTransactionCompletedEvent(Transaction transaction) {
 

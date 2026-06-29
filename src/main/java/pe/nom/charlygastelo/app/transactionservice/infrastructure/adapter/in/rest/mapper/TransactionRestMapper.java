@@ -20,8 +20,8 @@ public class TransactionRestMapper {
                 request.customerId(),
                 request.sourceProductId(),
                 request.targetProductId(),
-                ProductType.valueOf(request.sourceProductType()),
-                ProductType.valueOf(request.targetProductType()),
+                toProductType(request.sourceProductType()),
+                toProductType(request.targetProductType()),
                 TransactionType.valueOf(request.type()),
                 TransactionStatus.PENDING,
                 request.amount(),
@@ -38,8 +38,8 @@ public class TransactionRestMapper {
                 transaction.customerId(),
                 transaction.sourceProductId(),
                 transaction.targetProductId(),
-                transaction.sourceProductType().name(),
-                transaction.targetProductType().name(),
+                transaction.sourceProductType() != null ? transaction.sourceProductType().name() : null,
+                transaction.targetProductType() != null ? transaction.targetProductType().name() : null,
                 transaction.type().name(),
                 transaction.status().name(),
                 transaction.amount(),
@@ -48,5 +48,13 @@ public class TransactionRestMapper {
                 transaction.createdAt(),
                 transaction.updatedAt()
         );
+    }
+
+    private ProductType toProductType(String value) {
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+
+        return ProductType.valueOf(value);
     }
 }

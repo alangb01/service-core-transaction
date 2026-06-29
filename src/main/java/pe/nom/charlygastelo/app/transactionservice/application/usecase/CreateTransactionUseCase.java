@@ -90,6 +90,96 @@ public class CreateTransactionUseCase {
                 );
     }
 
+//    private Completable validate(Transaction transaction) {
+//
+//        if (transaction == null) {
+//            return Completable.error(
+//                    new InvalidTransactionException("Transaction cannot be null")
+//            );
+//        }
+//
+//        if (isBlank(transaction.customerId())) {
+//            return Completable.error(
+//                    new InvalidTransactionException("Customer id is required")
+//            );
+//        }
+//
+//        if (transaction.type() == null) {
+//            return Completable.error(
+//                    new InvalidTransactionException("Transaction type is required")
+//            );
+//        }
+//
+//        if (transaction.amount() == null
+//                || transaction.amount().compareTo(BigDecimal.ZERO) <= 0) {
+//
+//            return Completable.error(
+//                    new InvalidTransactionException("Amount must be greater than zero")
+//            );
+//        }
+//
+//        if (transaction.type() != TransactionType.DEPOSIT) {
+//
+//            if (transaction.sourceProductType() == null) {
+//                return Completable.error(
+//                        new InvalidTransactionException("Source product type is required")
+//                );
+//            }
+//
+//            if (isBlank(transaction.sourceProductId())) {
+//                return Completable.error(
+//                        new InvalidTransactionException("Source product id is required")
+//                );
+//            }
+//        }
+//
+//
+//        switch (transaction.type()) {
+//
+//            case TRANSFER -> {
+//                if (isBlank(transaction.targetProductId())) {
+//                    return Completable.error(
+//                            new InvalidTransactionException("Target product id is required for transfers")
+//                    );
+//                }
+//
+//                if (transaction.targetProductType() == null) {
+//                    return Completable.error(
+//                            new InvalidTransactionException("Target product type is required for transfers")
+//                    );
+//                }
+//
+//                if (transaction.sourceProductId().equals(transaction.targetProductId())) {
+//                    return Completable.error(
+//                            new InvalidTransactionException("Source and target products cannot be the same")
+//                    );
+//                }
+//            }
+//
+//            case CREDIT_PAYMENT -> {
+//                if (isBlank(transaction.targetProductId())) {
+//                    return Completable.error(
+//                            new InvalidTransactionException("Credit id is required for credit payments")
+//                    );
+//                }
+//            }
+//
+//            case CREDIT_CARD_CHARGE, DEBIT_CARD_PAYMENT, YANKI_PAYMENT -> {
+//                if (isBlank(transaction.targetProductId())) {
+//                    return Completable.error(
+//                            new InvalidTransactionException("Target product id is required")
+//                    );
+//                }
+//            }
+//
+//            default -> {
+//                // DEPOSIT / WITHDRAWAL pueden usar solo sourceProductId.
+//            }
+//        }
+//
+//        return Completable.complete();
+//    }
+
     private Completable validate(Transaction transaction) {
 
         if (transaction == null) {
@@ -118,59 +208,168 @@ public class CreateTransactionUseCase {
             );
         }
 
-        if (transaction.sourceProductType() == null) {
+        return switch (transaction.type()) {
+
+            case DEPOSIT -> validateDeposit(transaction);
+
+            case WITHDRAWAL -> validateWithdrawal(transaction);
+
+            case TRANSFER -> validateTransfer(transaction);
+
+            case CREDIT_PAYMENT -> validateCreditPayment(transaction);
+
+            case CREDIT_CARD_CHARGE -> validateCreditCardCharge(transaction);
+
+            case DEBIT_CARD_PAYMENT -> validateDebitCardPayment(transaction);
+
+            case YANKI_PAYMENT -> validateYankiPayment(transaction);
+        };
+    }
+
+    private Completable validateDeposit(Transaction tx) {
+
+        if (isBlank(tx.targetProductId())) {
             return Completable.error(
-                    new InvalidTransactionException("Source product type is required")
+                    new InvalidTransactionException("Target account id is required for deposits")
             );
         }
 
-        if (isBlank(transaction.sourceProductId())) {
+        if (tx.targetProductType() == null) {
             return Completable.error(
-                    new InvalidTransactionException("Source product id is required")
+                    new InvalidTransactionException("Target product type is required for deposits")
             );
         }
 
-        switch (transaction.type()) {
+        return Completable.complete();
+    }
 
-            case TRANSFER -> {
-                if (isBlank(transaction.targetProductId())) {
-                    return Completable.error(
-                            new InvalidTransactionException("Target product id is required for transfers")
-                    );
-                }
+    private Completable validateWithdrawal(Transaction tx) {
 
-                if (transaction.targetProductType() == null) {
-                    return Completable.error(
-                            new InvalidTransactionException("Target product type is required for transfers")
-                    );
-                }
+        if (isBlank(tx.sourceProductId())) {
+            return Completable.error(
+                    new InvalidTransactionException("Source account id is required for withdrawals")
+            );
+        }
 
-                if (transaction.sourceProductId().equals(transaction.targetProductId())) {
-                    return Completable.error(
-                            new InvalidTransactionException("Source and target products cannot be the same")
-                    );
-                }
-            }
+        if (tx.sourceProductType() == null) {
+            return Completable.error(
+                    new InvalidTransactionException("Source product type is required for withdrawals")
+            );
+        }
 
-            case CREDIT_PAYMENT -> {
-                if (isBlank(transaction.targetProductId())) {
-                    return Completable.error(
-                            new InvalidTransactionException("Credit id is required for credit payments")
-                    );
-                }
-            }
+        return Completable.complete();
+    }
 
-            case CREDIT_CARD_CHARGE, DEBIT_CARD_PAYMENT, YANKI_PAYMENT -> {
-                if (isBlank(transaction.targetProductId())) {
-                    return Completable.error(
-                            new InvalidTransactionException("Target product id is required")
-                    );
-                }
-            }
+    private Completable validateTransfer(Transaction tx) {
 
-            default -> {
-                // DEPOSIT / WITHDRAWAL pueden usar solo sourceProductId.
-            }
+        if (isBlank(tx.sourceProductId())) {
+            return Completable.error(
+                    new InvalidTransactionException("Source product id is required for transfers")
+            );
+        }
+
+        if (tx.sourceProductType() == null) {
+            return Completable.error(
+                    new InvalidTransactionException("Source product type is required for transfers")
+            );
+        }
+
+        if (isBlank(tx.targetProductId())) {
+            return Completable.error(
+                    new InvalidTransactionException("Target product id is required for transfers")
+            );
+        }
+
+        if (tx.targetProductType() == null) {
+            return Completable.error(
+                    new InvalidTransactionException("Target product type is required for transfers")
+            );
+        }
+
+        if (tx.sourceProductId().equals(tx.targetProductId())) {
+            return Completable.error(
+                    new InvalidTransactionException("Source and target products cannot be the same")
+            );
+        }
+
+        return Completable.complete();
+    }
+
+    private Completable validateCreditPayment(Transaction tx) {
+
+        if (isBlank(tx.sourceProductId())) {
+            return Completable.error(
+                    new InvalidTransactionException("Source account id is required for credit payments")
+            );
+        }
+
+        if (tx.sourceProductType() == null) {
+            return Completable.error(
+                    new InvalidTransactionException("Source product type is required for credit payments")
+            );
+        }
+
+        if (isBlank(tx.targetProductId())) {
+            return Completable.error(
+                    new InvalidTransactionException("Credit id is required for credit payments")
+            );
+        }
+
+        if (tx.targetProductType() == null) {
+            return Completable.error(
+                    new InvalidTransactionException("Target product type is required for credit payments")
+            );
+        }
+
+        return Completable.complete();
+    }
+
+    private Completable validateCreditCardCharge(Transaction tx) {
+
+        if (isBlank(tx.targetProductId())) {
+            return Completable.error(
+                    new InvalidTransactionException("Credit card id is required for credit card charges")
+            );
+        }
+
+        if (tx.targetProductType() == null) {
+            return Completable.error(
+                    new InvalidTransactionException("Target product type is required for credit card charges")
+            );
+        }
+
+        return Completable.complete();
+    }
+
+    private Completable validateDebitCardPayment(Transaction tx) {
+
+        if (isBlank(tx.sourceProductId())) {
+            return Completable.error(
+                    new InvalidTransactionException("Debit card id is required for debit card payments")
+            );
+        }
+
+        if (tx.sourceProductType() == null) {
+            return Completable.error(
+                    new InvalidTransactionException("Source product type is required for debit card payments")
+            );
+        }
+
+        return Completable.complete();
+    }
+
+    private Completable validateYankiPayment(Transaction tx) {
+
+        if (isBlank(tx.targetProductId())) {
+            return Completable.error(
+                    new InvalidTransactionException("Target wallet id is required for Yanki payments")
+            );
+        }
+
+        if (tx.targetProductType() == null) {
+            return Completable.error(
+                    new InvalidTransactionException("Target product type is required for Yanki payments")
+            );
         }
 
         return Completable.complete();
