@@ -1,11 +1,12 @@
 package pe.nom.charlygastelo.app.transactionservice.infrastructure.adapter.in.rest;
 
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-
 import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.core.Single;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import pe.nom.charlygastelo.app.transactionservice.application.usecase.CreateTransactionUseCase;
 import pe.nom.charlygastelo.app.transactionservice.application.usecase.GetTransactionUseCase;
@@ -16,6 +17,7 @@ import pe.nom.charlygastelo.app.transactionservice.infrastructure.adapter.in.res
 
 @RestController
 @RequestMapping("/transactions")
+@SecurityRequirement(name = "bearerAuth")
 @RequiredArgsConstructor
 public class TransactionController {
 
@@ -26,8 +28,9 @@ public class TransactionController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Single<TransactionResponse> create(@RequestBody CreateTransactionRequest request) {
-        return createUseCase.execute(mapper.toDomain(request))
+    public Single<TransactionResponse> create(@RequestBody CreateTransactionRequest request, @RequestHeader(HttpHeaders.AUTHORIZATION) String token) {
+        return createUseCase.
+                execute(mapper.toDomain(request), token)
                 .map(mapper::toResponse);
     }
 
@@ -44,15 +47,17 @@ public class TransactionController {
                 .map(mapper::toResponse);
     }
 
-    @GetMapping("/customer/{customerId}")
-    public Flowable<TransactionResponse> findByCustomer(@PathVariable String customerId) {
-        return listUseCase.byCustomer(customerId)
-                .map(mapper::toResponse);
-    }
+//    @GetMapping("/customer/{customerId}")
+//    public Flowable<TransactionResponse> findByCustomer(@PathVariable String customerId) {
+//        return listUseCase.byCustomer(customerId)
+//                .map(mapper::toResponse);
+//    }
+//
+//    @GetMapping("/product/{productId}")
+//    public Flowable<TransactionResponse> findByProduct(@PathVariable String productId) {
+//        return listUseCase.byProduct(productId)
+//                .map(mapper::toResponse);
+//    }
 
-    @GetMapping("/product/{productId}")
-    public Flowable<TransactionResponse> findByProduct(@PathVariable String productId) {
-        return listUseCase.byProduct(productId)
-                .map(mapper::toResponse);
-    }
+
 }

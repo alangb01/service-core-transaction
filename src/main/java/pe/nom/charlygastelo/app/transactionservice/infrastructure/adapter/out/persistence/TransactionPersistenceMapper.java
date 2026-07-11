@@ -1,7 +1,6 @@
 package pe.nom.charlygastelo.app.transactionservice.infrastructure.adapter.out.persistence;
 
 import org.springframework.stereotype.Component;
-
 import pe.nom.charlygastelo.app.transactionservice.domain.model.Transaction;
 
 @Component

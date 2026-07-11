@@ -1,7 +1,7 @@
 package pe.nom.charlygastelo.app.transactionservice.application.usecase;
 
 import java.time.LocalDateTime;
-
+import org.springframework.stereotype.Service;
 import io.reactivex.rxjava3.core.Single;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -10,6 +10,7 @@ import pe.nom.charlygastelo.app.transactionservice.domain.model.Transaction;
 import pe.nom.charlygastelo.app.transactionservice.domain.model.TransactionStatus;
 import pe.nom.charlygastelo.app.transactionservice.domain.port.TransactionRepositoryPort;
 
+@Service
 @Slf4j
 @RequiredArgsConstructor
 public class FailTransactionUseCase {

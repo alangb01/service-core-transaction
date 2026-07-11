@@ -1,9 +1,7 @@
 package pe.nom.charlygastelo.app.transactionservice.infrastructure.adapter.in.rest.mapper;
 
 import java.time.LocalDateTime;
-
 import org.springframework.stereotype.Component;
-
 import pe.nom.charlygastelo.app.transactionservice.domain.model.ProductType;
 import pe.nom.charlygastelo.app.transactionservice.domain.model.Transaction;
 import pe.nom.charlygastelo.app.transactionservice.domain.model.TransactionStatus;

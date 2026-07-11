@@ -1,18 +1,19 @@
 package pe.nom.charlygastelo.app.transactionservice.infrastructure.adapter.out.persistence;
 
 import org.springframework.stereotype.Repository;
-
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.core.Maybe;
 import io.reactivex.rxjava3.core.Single;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import pe.nom.charlygastelo.app.transactionservice.domain.model.Transaction;
 import pe.nom.charlygastelo.app.transactionservice.domain.port.TransactionRepositoryPort;
 import reactor.adapter.rxjava.RxJava3Adapter;
 
 @Repository
 @RequiredArgsConstructor
+@Slf4j
 public class TransactionRepositoryAdapter implements TransactionRepositoryPort {
 
     private final TransactionReactiveRepository repository;
@@ -21,8 +22,19 @@ public class TransactionRepositoryAdapter implements TransactionRepositoryPort {
     @Override
     public Single<Transaction> save(Transaction transaction) {
         return RxJava3Adapter.monoToSingle(
-                repository.save(mapper.toDocument(transaction))
-        ).map(mapper::toDomain);
+                    repository.save(mapper.toDocument(transaction))
+                ).map(mapper::toDomain)
+                .doOnSuccess(saved ->
+                        log.info("Transaction saved successfully. id={}, status={}",
+                                saved.id(),
+                                saved.status())
+                )
+                .doOnError(error ->
+                        log.error("Error saving transaction. customer={}, error={}",
+                                transaction.customerId(),
+                                error.getMessage(),
+                                error)
+                );
     }
 
     @Override

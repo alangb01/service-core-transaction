@@ -15,5 +15,6 @@
     { "name": "status", "type": "string" },
 
     { "name": "amount", "type": "double" }
+
   ]
 }
