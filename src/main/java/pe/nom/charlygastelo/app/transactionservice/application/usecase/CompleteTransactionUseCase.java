@@ -1,6 +1,6 @@
 package pe.nom.charlygastelo.app.transactionservice.application.usecase;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import org.springframework.stereotype.Service;
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Single;
@@ -40,7 +40,7 @@ public class CompleteTransactionUseCase {
                             movementFlow = movementProducer.publishMovementCreditCreated(saved);
                             break;
 
-                        case WITHDRAWAL:
+                        case WITHDRAW:
                             movementFlow = movementProducer.publishMovementDebitCreated(saved);
                             break;
 
@@ -48,7 +48,7 @@ public class CompleteTransactionUseCase {
                             movementFlow = movementProducer.publishMovementDebitCreated(saved)   // origen
                                             .andThen(movementProducer.publishMovementCreditCreated(saved)); // destino
                             break;
-                        case CREDIT_WITHDRAWL,CREDIT_PAYMENT:
+                        case CREDIT_WITHDRAW, CREDIT_PAYMENT:
                             movementFlow = movementProducer.publishMovementDebitCreated(saved)
                                     .andThen(movementProducer.publishMovementCreditCreated(saved));
                             break;
@@ -80,7 +80,7 @@ public class CompleteTransactionUseCase {
                 tx.commission(),
                 tx.description(),
                 tx.createdAt(),
-                LocalDateTime.now()
+                Instant.now()
         );
     }
 }

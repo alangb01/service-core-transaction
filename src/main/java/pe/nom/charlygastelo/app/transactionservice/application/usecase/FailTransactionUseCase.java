@@ -1,6 +1,6 @@
 package pe.nom.charlygastelo.app.transactionservice.application.usecase;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import org.springframework.stereotype.Service;
 import io.reactivex.rxjava3.core.Single;
 import lombok.RequiredArgsConstructor;
@@ -48,7 +48,7 @@ public class FailTransactionUseCase {
                 tx.commission(),
                 reason == null ? tx.description() : reason,
                 tx.createdAt(),
-                LocalDateTime.now()
+                Instant.now()
         );
     }
 }

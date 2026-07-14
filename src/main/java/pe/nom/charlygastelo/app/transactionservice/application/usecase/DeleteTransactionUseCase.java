@@ -5,7 +5,7 @@ import io.reactivex.rxjava3.core.Single;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import pe.nom.charlygastelo.app.transactionservice.domain.exception.TransactionNotFoundException;
-import pe.nom.charlygastelo.app.transactionservice.domain.port.TransactionEventProducerPort;
+import pe.nom.charlygastelo.app.transactionservice.domain.port.TransactionManagementEventProducerPort;
 import pe.nom.charlygastelo.app.transactionservice.domain.port.TransactionRepositoryPort;
 
 @Slf4j
@@ -13,7 +13,7 @@ import pe.nom.charlygastelo.app.transactionservice.domain.port.TransactionReposi
 public class DeleteTransactionUseCase {
 
     private final TransactionRepositoryPort repository;
-    private final TransactionEventProducerPort producer;
+    private final TransactionManagementEventProducerPort producer;
 
     public Completable execute(String id) {
         log.info("Starting transaction deletion process. id={}", id);

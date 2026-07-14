@@ -9,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import pe.nom.charlygastelo.app.transactionservice.domain.model.Transaction;
 import pe.nom.charlygastelo.app.transactionservice.domain.port.TransactionRepositoryPort;
-import reactor.adapter.rxjava.RxJava3Adapter;
 
 @Repository
 @RequiredArgsConstructor
@@ -21,7 +20,7 @@ public class TransactionRepositoryAdapter implements TransactionRepositoryPort {
 
     @Override
     public Single<Transaction> save(Transaction transaction) {
-        return RxJava3Adapter.monoToSingle(
+        return Single.fromPublisher(
                     repository.save(mapper.toDocument(transaction))
                 ).map(mapper::toDomain)
                 .doOnSuccess(saved ->
@@ -39,36 +38,38 @@ public class TransactionRepositoryAdapter implements TransactionRepositoryPort {
 
     @Override
     public Maybe<Transaction> findById(String id) {
-        return RxJava3Adapter.monoToMaybe(repository.findById(id))
+        return Maybe.fromPublisher(repository.findById(id))
                 .map(mapper::toDomain);
     }
 
     @Override
     public Flowable<Transaction> findAll() {
-        return RxJava3Adapter.fluxToFlowable(repository.findAll())
+        return Flowable.fromPublisher(repository.findAll())
                 .map(mapper::toDomain);
     }
 
     @Override
     public Flowable<Transaction> findByCustomerId(String customerId) {
-        return RxJava3Adapter.fluxToFlowable(repository.findByCustomerId(customerId))
+        return Flowable.fromPublisher(repository.findByCustomerId(customerId))
                 .map(mapper::toDomain);
     }
 
     @Override
     public Flowable<Transaction> findBySourceProductId(String productId) {
-        return RxJava3Adapter.fluxToFlowable(repository.findBySourceProductId(productId))
+        return Flowable.fromPublisher(repository.findBySourceProductId(productId))
                 .map(mapper::toDomain);
     }
 
     @Override
     public Flowable<Transaction> findByTargetProductId(String productId) {
-        return RxJava3Adapter.fluxToFlowable(repository.findByTargetProductId(productId))
+        return Flowable.fromPublisher(repository.findByTargetProductId(productId))
                 .map(mapper::toDomain);
     }
 
     @Override
     public Completable deleteById(String id) {
-        return RxJava3Adapter.monoToCompletable(repository.deleteById(id));
+        return Completable.fromPublisher(repository.deleteById(id));
     }
+
+
 }

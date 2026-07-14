@@ -1,8 +1,7 @@
 package pe.nom.charlygastelo.app.transactionservice.domain.model;
 
-
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 public record Transaction(
         String id,
@@ -16,6 +15,24 @@ public record Transaction(
         BigDecimal amount,
         BigDecimal commission,
         String description,
-        LocalDateTime createdAt,
-        LocalDateTime updatedAt
-) { }
+        Instant createdAt,
+        Instant updatedAt
+) {
+    public Transaction withStatus(TransactionStatus newStatus) {
+        return new Transaction(
+                id,
+                customerId,
+                sourceProductId,
+                targetProductId,
+                sourceProductType,
+                targetProductType,
+                type,
+                newStatus,
+                amount,
+                commission,
+                description,
+                createdAt,
+                Instant.now()
+        );
+    }
+}

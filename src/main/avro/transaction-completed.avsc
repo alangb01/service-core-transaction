@@ -7,14 +7,9 @@
     { "name": "eventType", "type": "string", "default": "TRANSACTION_COMPLETED" },
     { "name": "occurredAt", "type": "string" },
     { "name": "version", "type": "string", "default": "1.0" },
-    { "name": "source", "type": "string", "default": "account-service" },
+    { "name": "source", "type": "string", "default": "transaction-service" },
 
-    { "name": "transactionId", "type": "string" },
-    { "name": "customerId", "type": "string" },
-
-    { "name": "status", "type": "string" },
-
-    { "name": "amount", "type": "double" }
+    { "name": "transactionId", "type": "string" }
 
   ]
 }

@@ -11,14 +11,14 @@ public enum TransactionType {
 
     // Movimientos básicos
     DEPOSIT,
-    WITHDRAWAL,
+    WITHDRAW,
 
     // Transferencias
     TRANSFER,
     TRANSFER_TO_THIRD,
 
     // Créditos
-    CREDIT_WITHDRAWL,
+    CREDIT_WITHDRAW,
     CREDIT_PAYMENT,
     CREDIT_PAYMENT_THIRD,
     CREDIT_INTEREST,

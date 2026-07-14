@@ -1,7 +1,7 @@
 package pe.nom.charlygastelo.app.transactionservice.infrastructure.adapter.out.persistence;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import lombok.AllArgsConstructor;
@@ -36,6 +36,6 @@ public class TransactionDocument {
     private BigDecimal commission;
     private String description;
 
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private Instant createdAt;
+    private Instant updatedAt;
 }

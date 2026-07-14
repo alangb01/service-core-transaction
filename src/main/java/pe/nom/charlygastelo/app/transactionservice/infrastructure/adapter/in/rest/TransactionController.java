@@ -28,7 +28,10 @@ public class TransactionController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Single<TransactionResponse> create(@RequestBody CreateTransactionRequest request, @RequestHeader(HttpHeaders.AUTHORIZATION) String token) {
+    public Single<TransactionResponse> create(
+            @RequestBody CreateTransactionRequest request,
+            @RequestHeader(HttpHeaders.AUTHORIZATION) String token
+    ) {
         return createUseCase.
                 execute(mapper.toDomain(request), token)
                 .map(mapper::toResponse);
@@ -46,18 +49,5 @@ public class TransactionController {
         return listUseCase.all()
                 .map(mapper::toResponse);
     }
-
-//    @GetMapping("/customer/{customerId}")
-//    public Flowable<TransactionResponse> findByCustomer(@PathVariable String customerId) {
-//        return listUseCase.byCustomer(customerId)
-//                .map(mapper::toResponse);
-//    }
-//
-//    @GetMapping("/product/{productId}")
-//    public Flowable<TransactionResponse> findByProduct(@PathVariable String productId) {
-//        return listUseCase.byProduct(productId)
-//                .map(mapper::toResponse);
-//    }
-
 
 }

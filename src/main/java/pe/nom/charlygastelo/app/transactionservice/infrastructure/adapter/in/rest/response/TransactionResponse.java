@@ -1,8 +1,7 @@
 package pe.nom.charlygastelo.app.transactionservice.infrastructure.adapter.in.rest.response;
 
-
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 public record TransactionResponse(
         String id,
@@ -16,7 +15,7 @@ public record TransactionResponse(
         BigDecimal amount,
         BigDecimal commission,
         String description,
-        LocalDateTime createdAt,
-        LocalDateTime updatedAt
+        Instant createdAt,
+        Instant updatedAt
 ) {
 }

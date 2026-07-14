@@ -1,0 +1,18 @@
+{
+  "type": "record",
+  "name": "CreditCardChargeOccurredEvent",
+  "namespace": "pe.nom.charlygastelo.app.shared.avro.dto",
+  "fields": [
+    { "name": "eventId", "type": "string" },
+    { "name": "eventType", "type": "string", "default": "CREDIT_CARD_CHARGE_OCCURRED" },
+    { "name": "occurredAt", "type": "string" },
+    { "name": "version", "type": "string", "default": "1.0" },
+    { "name": "source", "type": "string", "default": "credit-card-service" },
+
+    { "name": "transactionId", "type": "string" },
+    { "name": "cardId", "type": "string" },
+    { "name": "amount", "type": "double" },
+    { "name": "availableCredit", "type": "double" },
+    { "name": "totalDebt", "type": "double" }
+  ]
+}

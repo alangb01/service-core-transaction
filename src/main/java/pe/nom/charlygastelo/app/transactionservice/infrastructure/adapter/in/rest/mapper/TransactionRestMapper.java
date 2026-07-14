@@ -1,6 +1,6 @@
 package pe.nom.charlygastelo.app.transactionservice.infrastructure.adapter.in.rest.mapper;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import org.springframework.stereotype.Component;
 import pe.nom.charlygastelo.app.transactionservice.domain.model.ProductType;
 import pe.nom.charlygastelo.app.transactionservice.domain.model.Transaction;
@@ -25,8 +25,8 @@ public class TransactionRestMapper {
                 request.amount(),
                 request.commission(),
                 request.description(),
-                LocalDateTime.now(),
-                LocalDateTime.now()
+                Instant.now(),
+                Instant.now()
         );
     }
 

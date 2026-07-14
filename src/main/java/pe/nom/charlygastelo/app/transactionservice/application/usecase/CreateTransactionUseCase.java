@@ -1,7 +1,7 @@
 package pe.nom.charlygastelo.app.transactionservice.application.usecase;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import org.springframework.stereotype.Service;
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Single;
@@ -9,11 +9,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import pe.nom.charlygastelo.app.transactionservice.domain.exception.InvalidTransactionException;
 import pe.nom.charlygastelo.app.transactionservice.domain.model.Transaction;
+import pe.nom.charlygastelo.app.transactionservice.domain.model.TransactionProgress;
 import pe.nom.charlygastelo.app.transactionservice.domain.model.TransactionStatus;
-import pe.nom.charlygastelo.app.transactionservice.domain.port.AccountClientPort;
-import pe.nom.charlygastelo.app.transactionservice.domain.port.CreditClientPort;
-import pe.nom.charlygastelo.app.transactionservice.domain.port.TransactionEventProducerPort;
-import pe.nom.charlygastelo.app.transactionservice.domain.port.TransactionRepositoryPort;
+import pe.nom.charlygastelo.app.transactionservice.domain.port.*;
 
 @Service
 @RequiredArgsConstructor
@@ -23,7 +21,8 @@ public class CreateTransactionUseCase {
     private final CreditClientPort creditClient;
     private final AccountClientPort accountClient;
     private final TransactionRepositoryPort repository;
-    private final TransactionEventProducerPort producer;
+    private final TransactionProgressRepositoryPort progressRepository;
+    private final TransactionManagementEventProducerPort producer;
 
     public Single<Transaction> execute(Transaction transaction, String token) {
         log.info("Creating transaction. customer={}, type={}",
@@ -41,57 +40,41 @@ public class CreateTransactionUseCase {
                 transaction.amount(),
                 transaction.commission(),
                 transaction.description(),
-                LocalDateTime.now(),
-                LocalDateTime.now()
+                Instant.now(),
+                Instant.now()
         );
 
         return validate(transaction, token)
                 .doOnComplete(() ->
-                        log.info("Transaction validation completed successfully. customer={}, type={}",
-                                transaction.customerId(),
-                                transaction.type())
+                    log.info("Transaction validation completed successfully. customer={}, type={}",
+                        transaction.customerId(),
+                        transaction.type())
                 )
                 .doOnError(error ->
-                        log.error("Transaction validation failed. customer={}, error={}",
-                                transaction.customerId(),
-                                error.getMessage(),
-                                error)
+                    log.error("Transaction validation failed. customer={}, error={}",
+                        transaction.customerId(),
+                        error.getMessage(),
+                        error)
                 )
                 .andThen(repository.save(pending))
-                .doOnSuccess(saved ->
-                        log.info("Transaction saved successfully. id={}, status={}",
-                                saved.id(),
-                                saved.status())
-                )
-                .doOnError(error ->
-                        log.error("Error saving transaction. customer={}, error={}",
-                                transaction.customerId(),
-                                error.getMessage(),
-                                error)
-                )
-                .flatMap(saved ->
+                .flatMap(saved -> {
+                    TransactionProgress progress=new TransactionProgress(
+                            saved.id(),
+                            saved.type(),
+                            false,
+                            false,
+                            false,
+                            false,
+                            false,
+                            false,
+                            Instant.now()
+                    );
+
+                    return progressRepository.save(progress).ignoreElement().andThen(Single.just(saved));
+                })
+                .flatMap(saved->
                         producer.publishTransactionCreated(saved)
-                                .doOnComplete(() ->
-                                        log.info("TransactionCreatedEvent published successfully. transactionId={}",
-                                                saved.id())
-                                )
-                                .doOnError(error ->
-                                        log.error("Error publishing TransactionCreatedEvent. transactionId={}, error={}",
-                                                saved.id(),
-                                                error.getMessage(),
-                                                error)
-                                )
                                 .andThen(Single.just(saved))
-                )
-                .doOnSuccess(saved ->
-                        log.info("Transaction process finished successfully. transactionId={}",
-                                saved.id())
-                )
-                .doOnError(error ->
-                        log.error("Transaction process failed. customer={}, error={}",
-                                transaction.customerId(),
-                                error.getMessage(),
-                                error)
                 );
     }
 
@@ -127,16 +110,16 @@ public class CreateTransactionUseCase {
 
             case DEPOSIT -> validateDeposit(transaction);
 
-            case WITHDRAWAL -> validateWithdrawal(transaction);
+            case WITHDRAW -> validateWithdrawal(transaction);
 
             case TRANSFER -> validateTransfer(transaction);
 
             case TRANSFER_TO_THIRD -> validateTransferToThird(transaction);
-            case CREDIT_PAYMENT -> validateCreditPayment(transaction);
 
+            case CREDIT_PAYMENT -> validateCreditPayment(transaction);
             case CREDIT_PAYMENT_THIRD -> null;
             case CREDIT_INTEREST -> null;
-            case CREDIT_WITHDRAWL ->validateCreditWithdrawal(transaction, token);
+            case CREDIT_WITHDRAW -> validateCreditWithdrawal(transaction, token);
             case CREDIT_CARD_CHARGE -> validateCreditCardCharge(transaction);
 
             case CREDIT_CARD_PAYMENT -> null;

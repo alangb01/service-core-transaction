@@ -38,12 +38,13 @@ public class TransactionEventMapper {
                 .setStatus(transaction.status().name())
                 .setAmount(transaction.amount().doubleValue())
                 .setCommission(transaction.commission().doubleValue())
+
                 .setDescription(value(transaction.description()))
                 .build();
     }
 
 
-    public TransactionCompletedEvent toTransactionCompletedEvent(Transaction transaction) {
+    public TransactionCompletedEvent toTransactionCompletedEvent(String transactionId) {
 
         return TransactionCompletedEvent.newBuilder()
                 .setEventId(UUID.randomUUID().toString())
@@ -51,19 +52,12 @@ public class TransactionEventMapper {
                 .setOccurredAt(Instant.now().toString())
                 .setVersion("1.0")
                 .setSource("transaction-service")
-                .setTransactionId(value(transaction.id()))
-                .setCustomerId(value(transaction.customerId()))
-                .setStatus(transaction.status().name())
-                .setAmount(transaction.amount().doubleValue())
+                .setTransactionId(value(transactionId))
                 .build();
     }
 
-    public TransactionFailedEvent toTransactionFailedEvent(Transaction transaction) {
-        return toTransactionFailedEvent(transaction, "Transaction failed");
-    }
-
     public TransactionFailedEvent toTransactionFailedEvent(
-            Transaction transaction,
+            String transactionId,
             String reason) {
 
         return TransactionFailedEvent.newBuilder()
@@ -72,8 +66,7 @@ public class TransactionEventMapper {
                 .setOccurredAt(Instant.now().toString())
                 .setVersion("1.0")
                 .setSource("transaction-service")
-                .setTransactionId(value(transaction.id()))
-                .setCustomerId(value(transaction.customerId()))
+                .setTransactionId(value(transactionId))
                 .setReason(value(reason))
                 .build();
     }

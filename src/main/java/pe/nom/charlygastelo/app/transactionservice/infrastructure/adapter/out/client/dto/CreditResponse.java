@@ -9,7 +9,7 @@ public record CreditResponse (
         String currency,
         boolean active,
         String status
-){
+) {
 
 
     public boolean hasOverdueDebt() {

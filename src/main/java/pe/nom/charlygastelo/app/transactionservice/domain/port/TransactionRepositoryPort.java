@@ -21,4 +21,5 @@ public interface TransactionRepositoryPort {
     Flowable<Transaction> findByTargetProductId(String productId);
 
     Completable deleteById(String id);
+
 }

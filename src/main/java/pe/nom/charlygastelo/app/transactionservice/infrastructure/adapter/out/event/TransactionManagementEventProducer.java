@@ -8,22 +8,18 @@ import io.reactivex.rxjava3.core.Completable;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import pe.nom.charlygastelo.app.transactionservice.domain.model.Transaction;
-import pe.nom.charlygastelo.app.transactionservice.domain.port.TransactionEventProducerPort;
+import pe.nom.charlygastelo.app.transactionservice.domain.port.TransactionManagementEventProducerPort;
 import pe.nom.charlygastelo.app.transactionservice.infrastructure.adapter.out.event.mapper.TransactionEventMapper;
 
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class TransactionEventProducer implements TransactionEventProducerPort {
+public class TransactionManagementEventProducer implements TransactionManagementEventProducerPort {
 
     @Value("${topic.transaction-created}")
     private String transactionCreatedTopic;
 
-    @Value("${topic.transaction-completed}")
-    private String transactionCompletedTopic;
 
-    @Value("${topic.transaction-failed}")
-    private String transactionFailedTopic;
 
     @Value("${topic.transaction-deleted}")
     private String transactionDeletedTopic;
@@ -40,23 +36,6 @@ public class TransactionEventProducer implements TransactionEventProducerPort {
         );
     }
 
-    @Override
-    public Completable publishTransactionCompleted(Transaction transaction) {
-        return publish(
-                transactionCompletedTopic,
-                transaction.id(),
-                mapper.toTransactionCompletedEvent(transaction)
-        );
-    }
-
-    @Override
-    public Completable publishTransactionFailed(Transaction transaction) {
-        return publish(
-                transactionFailedTopic,
-                transaction.id(),
-                mapper.toTransactionFailedEvent(transaction)
-        );
-    }
 
     @Override
     public Completable publishTransactionDeleted(Transaction transaction) {
@@ -66,6 +45,8 @@ public class TransactionEventProducer implements TransactionEventProducerPort {
                 mapper.toTransactionDeletedEvent(transaction)
         );
     }
+
+
 
     private Completable publish(
             String topic,
