@@ -2,6 +2,7 @@ package pe.nom.charlygastelo.app.transactionservice.application.usecase;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.HashSet;
 import org.springframework.stereotype.Service;
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Single;
@@ -10,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import pe.nom.charlygastelo.app.transactionservice.domain.exception.InvalidTransactionException;
 import pe.nom.charlygastelo.app.transactionservice.domain.model.Transaction;
 import pe.nom.charlygastelo.app.transactionservice.domain.model.TransactionProgress;
+import pe.nom.charlygastelo.app.transactionservice.domain.model.TransactionRequirements;
 import pe.nom.charlygastelo.app.transactionservice.domain.model.TransactionStatus;
 import pe.nom.charlygastelo.app.transactionservice.domain.port.*;
 
@@ -58,21 +60,18 @@ public class CreateTransactionUseCase {
                 )
                 .andThen(repository.save(pending))
                 .flatMap(saved -> {
-                    TransactionProgress progress=new TransactionProgress(
+                    TransactionProgress progress = new TransactionProgress(
                             saved.id(),
                             saved.type(),
-                            false,
-                            false,
-                            false,
-                            false,
-                            false,
-                            false,
+                            new HashSet<>(),                     // receivedEvents vacío
+                            TransactionRequirements.forType(saved.type()), // requiredEvents según tipo
+                            false,                               // failed
                             Instant.now()
                     );
 
                     return progressRepository.save(progress).ignoreElement().andThen(Single.just(saved));
                 })
-                .flatMap(saved->
+                .flatMap(saved ->
                         producer.publishTransactionCreated(saved)
                                 .andThen(Single.just(saved))
                 );
@@ -107,32 +106,34 @@ public class CreateTransactionUseCase {
         }
 
         return switch (transaction.type()) {
-
+            //ACCOUNT
             case DEPOSIT -> validateDeposit(transaction);
-
             case WITHDRAW -> validateWithdrawal(transaction);
-
             case TRANSFER -> validateTransfer(transaction);
-
             case TRANSFER_TO_THIRD -> validateTransferToThird(transaction);
 
+            //CREDIT
             case CREDIT_PAYMENT -> validateCreditPayment(transaction);
             case CREDIT_PAYMENT_THIRD -> null;
-            case CREDIT_INTEREST -> null;
             case CREDIT_WITHDRAW -> validateCreditWithdrawal(transaction, token);
+            case CREDIT_INTEREST -> null;
+
+            //CREDIT CARD
             case CREDIT_CARD_CHARGE -> validateCreditCardCharge(transaction);
-
-            case CREDIT_CARD_PAYMENT -> null;
+            case CREDIT_CARD_PAYMENT -> validateCreditCardPayment(transaction);
             case CREDIT_CARD_INTEREST -> null;
-            case DEBIT_CARD_PAYMENT -> validateDebitCardPayment(transaction);
 
-            case DEBIT_CARD_PURCHASE -> null;
+            //DEBIT CARD
+            case DEBIT_CARD_PAYMENT -> validateDebitCardPayment(transaction);
+            case DEBIT_CARD_PURCHASE -> validateDebitCardPurchase(transaction);
+
             case FIXED_TERM_DEPOSIT -> null;
             case FIXED_TERM_WITHDRAWAL -> null;
-            case YANKI_PAYMENT -> validateYankiPayment(transaction);
 
-            case YANKI_RECEIVE -> null;
+            case YANKI_PAYMENT -> validateYankiPayment(transaction);
+            case YANKI_RECEIVE -> validateYankiReceive(transaction);
             case YANKI_LINK_DEBIT_CARD -> null;
+
             case ACCOUNT_MAINTENANCE_FEE -> null;
             case TRANSACTION_FEE -> null;
         };
@@ -366,15 +367,27 @@ public class CreateTransactionUseCase {
 
     private Completable validateCreditCardCharge(Transaction tx) {
 
-        if (isBlank(tx.targetProductId())) {
+        if (isBlank(tx.sourceProductId())) {
             return Completable.error(
                     new InvalidTransactionException("Credit card id is required for credit card charges")
             );
         }
 
+
+        return Completable.complete();
+    }
+
+    private Completable validateCreditCardPayment(Transaction tx) {
+
+        if (isBlank(tx.sourceProductId())) {
+            return Completable.error(
+                    new InvalidTransactionException("account id is required for credit card payment")
+            );
+        }
+
         if (tx.targetProductType() == null) {
             return Completable.error(
-                    new InvalidTransactionException("Target product type is required for credit card charges")
+                    new InvalidTransactionException("credit card is required for credit card payment")
             );
         }
 
@@ -398,7 +411,41 @@ public class CreateTransactionUseCase {
         return Completable.complete();
     }
 
+    private Completable validateDebitCardPurchase(Transaction tx) {
+
+        if (isBlank(tx.sourceProductId())) {
+            return Completable.error(
+                    new InvalidTransactionException("Debit card id is required for debit card purchase")
+            );
+        }
+
+        if (tx.sourceProductType() == null) {
+            return Completable.error(
+                    new InvalidTransactionException("Source product type is required for debit card purchase")
+            );
+        }
+
+        return Completable.complete();
+    }
+
     private Completable validateYankiPayment(Transaction tx) {
+
+        if (isBlank(tx.targetProductId())) {
+            return Completable.error(
+                    new InvalidTransactionException("Target wallet id is required for Yanki payments")
+            );
+        }
+
+        if (tx.targetProductType() == null) {
+            return Completable.error(
+                    new InvalidTransactionException("Target product type is required for Yanki payments")
+            );
+        }
+
+        return Completable.complete();
+    }
+
+    private Completable validateYankiReceive(Transaction tx) {
 
         if (isBlank(tx.targetProductId())) {
             return Completable.error(

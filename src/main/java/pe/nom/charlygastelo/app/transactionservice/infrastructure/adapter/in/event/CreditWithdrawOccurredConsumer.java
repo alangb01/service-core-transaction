@@ -17,7 +17,7 @@ public class CreditWithdrawOccurredConsumer {
     public void consume(CreditWithdrawOccurredEvent event) {
 
         String txId = event.getTransactionId().toString();
-        String eventType = "CREDIT_WITHDRAW_OCCURRED";
+        String eventType = event.getEventType().toString();
 
         log.info("[TX] Received {} txId={}", eventType, txId);
 
@@ -28,4 +28,5 @@ public class CreditWithdrawOccurredConsumer {
                 );
     }
 }
+
 

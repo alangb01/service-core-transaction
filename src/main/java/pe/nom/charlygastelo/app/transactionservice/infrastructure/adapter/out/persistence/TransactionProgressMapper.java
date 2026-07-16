@@ -1,7 +1,10 @@
 package pe.nom.charlygastelo.app.transactionservice.infrastructure.adapter.out.persistence;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import org.springframework.stereotype.Component;
 import pe.nom.charlygastelo.app.transactionservice.domain.model.TransactionProgress;
+
 
 @Component
 public class TransactionProgressMapper {
@@ -10,11 +13,8 @@ public class TransactionProgressMapper {
         return new TransactionProgress(
                 doc.getTransactionId(),
                 doc.getType(),
-                doc.isAccountWithdrawOccurred(),
-                doc.isAccountDepositOccurred(),
-                doc.isCreditPaymentOccurred(),
-                doc.isCreditCardChargeOccurred(),
-                doc.isMovementRecorded(),
+                new HashSet<>(doc.getReceivedEvents()),
+                new HashSet<>(doc.getRequiredEvents()),
                 doc.isFailed(),
                 doc.getUpdatedAt()
         );
@@ -26,11 +26,8 @@ public class TransactionProgressMapper {
         doc.setTransactionId(domain.transactionId());
         doc.setType(domain.type());
 
-        doc.setAccountWithdrawOccurred(domain.accountWithdrawOccurred());
-        doc.setAccountDepositOccurred(domain.accountDepositOccurred());
-        doc.setCreditPaymentOccurred(domain.creditPaymentOccurred());
-        doc.setCreditCardChargeOccurred(domain.creditCardChargeOccurred());
-        doc.setMovementRecorded(domain.movementRecorded());
+        doc.setReceivedEvents(new ArrayList<>(domain.receivedEvents()));
+        doc.setRequiredEvents(new ArrayList<>(domain.requiredEvents()));
 
         doc.setFailed(domain.failed());
         doc.setUpdatedAt(domain.updatedAt());

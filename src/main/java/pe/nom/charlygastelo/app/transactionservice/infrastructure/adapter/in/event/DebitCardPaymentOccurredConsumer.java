@@ -4,18 +4,18 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import pe.nom.charlygastelo.app.shared.avro.dto.MovementRecordedEvent;
+import pe.nom.charlygastelo.app.shared.avro.dto.DebitCardPaymentOccurredEvent;
 import pe.nom.charlygastelo.app.transactionservice.application.usecase.TransactionProgressUseCase;
 
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class MovementRecordedConsumer {
+public class DebitCardPaymentOccurredConsumer {
 
     private final TransactionProgressUseCase progressUseCase;
 
-    @KafkaListener(topics = "${topic.movement-recorded}", groupId = "transaction-service")
-    public void consume(MovementRecordedEvent event) {
+    @KafkaListener(topics = "${topic.debit-card-payment-occurred}", groupId = "transaction-service")
+    public void consume(DebitCardPaymentOccurredEvent event) {
 
         String txId = event.getTransactionId().toString();
         String eventType = event.getEventType().toString();
@@ -29,4 +29,3 @@ public class MovementRecordedConsumer {
                 );
     }
 }
-

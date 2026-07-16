@@ -18,7 +18,7 @@ public class CreditPaymentOccurredConsumer {
     public void consume(CreditPaymentOccurredEvent event) {
 
         String txId = event.getTransactionId().toString();
-        String eventType = "CREDIT_PAYMENT_OCCURRED";
+        String eventType = event.getEventType().toString();
 
         log.info("[TX] Received {} txId={}", eventType, txId);
 
@@ -29,3 +29,4 @@ public class CreditPaymentOccurredConsumer {
                 );
     }
 }
+

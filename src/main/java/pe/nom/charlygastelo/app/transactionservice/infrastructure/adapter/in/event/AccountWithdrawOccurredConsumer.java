@@ -18,7 +18,7 @@ public class AccountWithdrawOccurredConsumer {
     public void consume(AccountWithdrawOccurredEvent event) {
 
         String txId = event.getTransactionId().toString();
-        String eventType = "ACCOUNT_WITHDRAW_OCCURRED";
+        String eventType = event.getEventType().toString();
 
         log.info("[TX] Received {} txId={}", eventType, txId);
 

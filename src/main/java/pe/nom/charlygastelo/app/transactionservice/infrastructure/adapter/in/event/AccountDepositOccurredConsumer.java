@@ -18,7 +18,7 @@ public class AccountDepositOccurredConsumer {
     public void consume(AccountDepositOccurredEvent event) {
 
         String txId = event.getTransactionId().toString();
-        String eventType = "ACCOUNT_DEPOSIT_OCCURRED";
+        String eventType = event.getEventType().toString();
 
         log.info("[TX] Received {} txId={}", eventType, txId);
 
@@ -29,3 +29,5 @@ public class AccountDepositOccurredConsumer {
                 );
     }
 }
+
+
