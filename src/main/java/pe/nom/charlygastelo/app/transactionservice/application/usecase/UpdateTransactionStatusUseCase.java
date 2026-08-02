@@ -7,7 +7,7 @@ import io.reactivex.rxjava3.core.Single;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import pe.nom.charlygastelo.app.transactionservice.domain.model.TransactionStatus;
-import pe.nom.charlygastelo.app.transactionservice.domain.port.TransactionLedgerEventProducerPort;
+import pe.nom.charlygastelo.app.transactionservice.domain.port.TransactionEventProducerPort;
 import pe.nom.charlygastelo.app.transactionservice.domain.port.TransactionRepositoryPort;
 
 
@@ -17,7 +17,7 @@ import pe.nom.charlygastelo.app.transactionservice.domain.port.TransactionReposi
 public class UpdateTransactionStatusUseCase {
 
     private final TransactionRepositoryPort transactionRepository;
-    private final TransactionLedgerEventProducerPort eventProducer;
+    private final TransactionEventProducerPort eventProducer;
 
     public Completable markCompleted(String transactionId, String eventType) {
         log.info("[TX-USECASE] Marking COMPLETED txId={} eventType={}", transactionId, eventType);
@@ -49,7 +49,7 @@ public class UpdateTransactionStatusUseCase {
             String extraInfo
     ) {
 
-        log.info("[TX-USECASE] Marking {} txId={} info={}", statusLabel, transactionId, extraInfo);
+        log.info("[TX-USECASE] updating {} txId={} info={}", statusLabel, transactionId, extraInfo);
 
         return transactionRepository.findById(transactionId)
                 .switchIfEmpty(Single.error(new RuntimeException(
@@ -71,7 +71,7 @@ public class UpdateTransactionStatusUseCase {
                             .ignoreElement()
                             .andThen(eventPublisher.get())
                             .doOnComplete(() ->
-                                    log.info("[TX-USECASE] Transaction{}Event published txId={}",
+                                    log.info("[TX-USECASE] Transaction {} Event published txId={}",
                                             statusLabel, transactionId));
                 })
                 .doOnError(error ->

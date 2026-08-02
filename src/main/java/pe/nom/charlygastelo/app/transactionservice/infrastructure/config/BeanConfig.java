@@ -4,7 +4,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import lombok.RequiredArgsConstructor;
 import pe.nom.charlygastelo.app.transactionservice.application.usecase.*;
-import pe.nom.charlygastelo.app.transactionservice.domain.port.TransactionManagementEventProducerPort;
+import pe.nom.charlygastelo.app.transactionservice.domain.port.TransactionEventProducerPort;
 import pe.nom.charlygastelo.app.transactionservice.domain.port.TransactionRepositoryPort;
 
 @Configuration
@@ -30,7 +30,7 @@ public class BeanConfig {
     @Bean
     public DeleteTransactionUseCase deleteTransactionUseCase(
             TransactionRepositoryPort repository,
-            TransactionManagementEventProducerPort producer) {
+            TransactionEventProducerPort producer) {
 
         return new DeleteTransactionUseCase(
                 repository,

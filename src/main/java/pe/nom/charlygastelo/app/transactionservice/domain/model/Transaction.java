@@ -35,4 +35,22 @@ public record Transaction(
                 Instant.now()
         );
     }
+
+    public Transaction updateForYankiSend(String sourceAccountId, String targetAccountId, TransactionStatus newStatus) {
+        return new Transaction(
+                id,
+                customerId,
+                sourceAccountId,
+                targetAccountId,
+                ProductType.ACCOUNT,
+                ProductType.ACCOUNT,
+                type,
+                newStatus,
+                amount,
+                commission,
+                description,
+                createdAt,
+                Instant.now()
+        );
+    }
 }

@@ -21,14 +21,9 @@ public final class TransactionRequirements {
                     "MOVEMENT_SOURCE_RECORDED"
             );
 
-            case TRANSFER -> Set.of(
-                    "ACCOUNT_TRANSFER_OCCURRED",
-                    "MOVEMENT_SOURCE_RECORDED",
-                    "MOVEMENT_TARGET_RECORDED"
-            );
-
-            case TRANSFER_TO_THIRD -> Set.of(
-                    "ACCOUNT_TRANSFER_TO_THIRD_OCCURRED",
+            case TRANSFER, TRANSFER_TO_THIRD -> Set.of(
+                    "ACCOUNT_WITHDRAW_OCCURRED",
+                    "ACCOUNT_DEPOSIT_OCCURRED",
                     "MOVEMENT_SOURCE_RECORDED",
                     "MOVEMENT_TARGET_RECORDED"
             );
@@ -102,19 +97,22 @@ public final class TransactionRequirements {
             // ------------------------------------------------------------
             // YANKI
             // ------------------------------------------------------------
-            case YANKI_PAYMENT -> Set.of(
-                    "YANKI_PAYMENT_OCCURRED",
+            case YANKI_SEND -> Set.of(
+                    "DEBIT_CARD_ACCOUNTS_RESOLVED_RESPONSE",
+                    "ACCOUNT_WITHDRAW_OCCURRED",
                     "MOVEMENT_SOURCE_RECORDED"
             );
 
             case YANKI_RECEIVE -> Set.of(
-                    "YANKI_RECEIVE_OCCURRED",
+                    "DEBIT_CARD_ACCOUNTS_RESOLVED_RESPONSE",
+                    "ACCOUNT_DEPOSIT_OCCURRED",
                     "MOVEMENT_TARGET_RECORDED"
             );
 
-            case YANKI_LINK_DEBIT_CARD -> Set.of(
-                    "YANKI_LINK_DEBIT_CARD_OCCURRED"
-            );
+//            case YANKI_PAYMENT -> Set.of(
+//                    "ACCOUNT_WITHDRAW_OCCURRED",
+//                    "MOVEMENT_SOURCE_RECORDED"
+//            );
 
             // ------------------------------------------------------------
             // FIXED TERM (NO SON TRANSACCIONES)

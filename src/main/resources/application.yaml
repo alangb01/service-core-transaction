@@ -4,3 +4,8 @@ spring:
 
   config:
     import: "configserver:http://localhost:8888"
+
+topic:
+  wallet-payment-occurred: wallet.payment-occurred
+  debit-card-accounts-resolved: debit-card.accounts-resolved
+  transaction-updated: transaction.updated

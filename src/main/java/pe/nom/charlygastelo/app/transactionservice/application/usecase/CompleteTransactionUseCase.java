@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import pe.nom.charlygastelo.app.transactionservice.domain.exception.TransactionNotFoundException;
 import pe.nom.charlygastelo.app.transactionservice.domain.model.Transaction;
 import pe.nom.charlygastelo.app.transactionservice.domain.model.TransactionStatus;
+import pe.nom.charlygastelo.app.transactionservice.domain.model.TransactionType;
 import pe.nom.charlygastelo.app.transactionservice.domain.port.MovementEventProducerPort;
 import pe.nom.charlygastelo.app.transactionservice.domain.port.TransactionRepositoryPort;
 
@@ -33,28 +34,18 @@ public class CompleteTransactionUseCase {
 
                     log.info("Transaction marked as COMPLETED. transactionId={}", saved.id());
 
-                    Completable movementFlow;
+                    Completable movementFlow = switch (saved.type()) {
+                        case DEPOSIT -> movementProducer.publishMovementCreditCreated(saved);
+                        case WITHDRAW -> movementProducer.publishMovementDebitCreated(saved);
+                        case TRANSFER, TRANSFER_TO_THIRD ->
+                                movementProducer.publishMovementDebitCreated(saved)   // origen
+                                        .andThen(movementProducer.publishMovementCreditCreated(saved)); // destino
+                        case CREDIT_WITHDRAW, CREDIT_PAYMENT -> movementProducer.publishMovementDebitCreated(saved)
+                                .andThen(movementProducer.publishMovementCreditCreated(saved));
 
-                    switch (saved.type()) {
-                        case DEPOSIT:
-                            movementFlow = movementProducer.publishMovementCreditCreated(saved);
-                            break;
-
-                        case WITHDRAW:
-                            movementFlow = movementProducer.publishMovementDebitCreated(saved);
-                            break;
-
-                        case TRANSFER, TRANSFER_TO_THIRD:
-                            movementFlow = movementProducer.publishMovementDebitCreated(saved)   // origen
-                                            .andThen(movementProducer.publishMovementCreditCreated(saved)); // destino
-                            break;
-                        case CREDIT_WITHDRAW, CREDIT_PAYMENT:
-                            movementFlow = movementProducer.publishMovementDebitCreated(saved)
-                                    .andThen(movementProducer.publishMovementCreditCreated(saved));
-                            break;
-                        default:
-                            movementFlow = Completable.complete();
-                    }
+                        case YANKI_SEND -> processMovementsForYanki(saved);
+                        default -> Completable.complete();
+                    };
 
                     // Encadenar movimientos dentro del flujo
                     return movementFlow.andThen(Single.just(saved));
@@ -63,6 +54,18 @@ public class CompleteTransactionUseCase {
                         log.error("Error completing transaction. transactionId={}, reason={}",
                                 transactionId, error.getMessage(), error)
                 );
+    }
+
+    private Completable processMovementsForYanki(Transaction saved) {
+
+        if (TransactionType.YANKI_SEND.equals(saved.type())) {
+            Completable movementForSource = movementProducer.publishMovementDebitCreated(saved);
+            Completable movementForTarget = movementProducer.publishMovementCreditCreated(saved);
+
+            return movementForSource.andThen(movementForTarget);
+        }
+
+        return Completable.complete();
     }
 
 

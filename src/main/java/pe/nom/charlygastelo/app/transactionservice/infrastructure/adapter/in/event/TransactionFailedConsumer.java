@@ -27,19 +27,19 @@ public class TransactionFailedConsumer {
                     transactionId, reason);
 
             failTransactionUseCase.execute(transactionId, reason)
-                    .subscribe(
-                            saved -> log.warn(
-                                    "Transaction status updated to FAILED. transactionId={}, reason={}",
-                                    saved.id(),
-                                    reason
-                            ),
-                            error -> log.error(
-                                    "Error updating transaction to FAILED. transactionId={}, reason={}",
-                                    transactionId,
-                                    error.getMessage(),
-                                    error
-                            )
-                    );
+                .subscribe(
+                    saved -> log.warn(
+                        "Transaction status updated to FAILED. transactionId={}, reason={}",
+                        saved.id(),
+                        reason
+                    ),
+                    error -> log.error(
+                        "Error updating transaction to FAILED. transactionId={}, reason={}",
+                        transactionId,
+                        error.getMessage(),
+                        error
+                    )
+                );
 
         }
         catch (Exception e) {

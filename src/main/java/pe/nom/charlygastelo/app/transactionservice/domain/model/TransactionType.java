@@ -37,9 +37,8 @@ public enum TransactionType {
     FIXED_TERM_WITHDRAWAL,
 
     // Yanki
-    YANKI_PAYMENT,
     YANKI_RECEIVE,
-    YANKI_LINK_DEBIT_CARD,
+    YANKI_SEND,
 
     // Comisiones
     ACCOUNT_MAINTENANCE_FEE,

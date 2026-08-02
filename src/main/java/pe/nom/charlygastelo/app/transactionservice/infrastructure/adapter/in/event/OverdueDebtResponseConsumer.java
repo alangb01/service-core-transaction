@@ -1,10 +1,11 @@
-package pe.nom.charlygastelo.app.transactionservice.infrastructure.adapter.out.event;
+package pe.nom.charlygastelo.app.transactionservice.infrastructure.adapter.in.event;
 
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import pe.nom.charlygastelo.app.shared.avro.dto.OverdueDebtResponseEvent;
+import pe.nom.charlygastelo.app.transactionservice.infrastructure.adapter.out.event.OverdueDebtResponseRegistry;
 
 @Component
 @RequiredArgsConstructor

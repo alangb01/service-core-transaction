@@ -33,7 +33,7 @@ public class TransactionController {
             @RequestHeader(HttpHeaders.AUTHORIZATION) String token
     ) {
         return createUseCase.
-                execute(mapper.toDomain(request), token)
+                execute(mapper.toDomain(request))
                 .map(mapper::toResponse);
     }
 

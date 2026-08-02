@@ -3,16 +3,14 @@ package pe.nom.charlygastelo.app.transactionservice.application.usecase;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.HashSet;
+import java.util.Objects;
 import org.springframework.stereotype.Service;
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Single;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import pe.nom.charlygastelo.app.transactionservice.domain.exception.InvalidTransactionException;
-import pe.nom.charlygastelo.app.transactionservice.domain.model.Transaction;
-import pe.nom.charlygastelo.app.transactionservice.domain.model.TransactionProgress;
-import pe.nom.charlygastelo.app.transactionservice.domain.model.TransactionRequirements;
-import pe.nom.charlygastelo.app.transactionservice.domain.model.TransactionStatus;
+import pe.nom.charlygastelo.app.transactionservice.domain.model.*;
 import pe.nom.charlygastelo.app.transactionservice.domain.port.*;
 
 @Service
@@ -24,9 +22,9 @@ public class CreateTransactionUseCase {
     private final AccountClientPort accountClient;
     private final TransactionRepositoryPort repository;
     private final TransactionProgressRepositoryPort progressRepository;
-    private final TransactionManagementEventProducerPort producer;
+    private final TransactionEventProducerPort producer;
 
-    public Single<Transaction> execute(Transaction transaction, String token) {
+    public Single<Transaction> execute(Transaction transaction) {
         log.info("Creating transaction. customer={}, type={}",
                 transaction.customerId(), transaction.type());
 
@@ -46,7 +44,7 @@ public class CreateTransactionUseCase {
                 Instant.now()
         );
 
-        return validate(transaction, token)
+        return Objects.requireNonNull(validate(transaction))
                 .doOnComplete(() ->
                     log.info("Transaction validation completed successfully. customer={}, type={}",
                         transaction.customerId(),
@@ -77,8 +75,8 @@ public class CreateTransactionUseCase {
                 );
     }
 
-    private Completable validate(Transaction transaction, String token) {
-
+    private Completable validate(Transaction transaction) {
+        log.info("starting validation");
         if (transaction == null) {
             return Completable.error(
                     new InvalidTransactionException("Transaction cannot be null")
@@ -115,7 +113,7 @@ public class CreateTransactionUseCase {
             //CREDIT
             case CREDIT_PAYMENT -> validateCreditPayment(transaction);
             case CREDIT_PAYMENT_THIRD -> null;
-            case CREDIT_WITHDRAW -> validateCreditWithdrawal(transaction, token);
+            case CREDIT_WITHDRAW -> validateCreditWithdrawal(transaction);
             case CREDIT_INTEREST -> null;
 
             //CREDIT CARD
@@ -130,16 +128,16 @@ public class CreateTransactionUseCase {
             case FIXED_TERM_DEPOSIT -> null;
             case FIXED_TERM_WITHDRAWAL -> null;
 
-            case YANKI_PAYMENT -> validateYankiPayment(transaction);
+            //YANKI
+            case YANKI_SEND -> validateYankiSend(transaction);
             case YANKI_RECEIVE -> validateYankiReceive(transaction);
-            case YANKI_LINK_DEBIT_CARD -> null;
 
             case ACCOUNT_MAINTENANCE_FEE -> null;
             case TRANSACTION_FEE -> null;
         };
     }
 
-    private Completable validateCreditWithdrawal(Transaction tx, String token) {
+    private Completable validateCreditWithdrawal(Transaction tx) {
 
         // 1. Validar IDs obligatorios
         if (isBlank(tx.sourceProductId())) {
@@ -428,8 +426,8 @@ public class CreateTransactionUseCase {
         return Completable.complete();
     }
 
-    private Completable validateYankiPayment(Transaction tx) {
-
+    private Completable validateYankiReceive(Transaction tx) {
+        log.info("starting validation receive");
         if (isBlank(tx.targetProductId())) {
             return Completable.error(
                     new InvalidTransactionException("Target wallet id is required for Yanki payments")
@@ -445,20 +443,24 @@ public class CreateTransactionUseCase {
         return Completable.complete();
     }
 
-    private Completable validateYankiReceive(Transaction tx) {
-
-        if (isBlank(tx.targetProductId())) {
+    private Completable validateYankiSend(Transaction tx) {
+        log.info("starting validation send");
+        if (isBlank(tx.sourceProductId())) {
             return Completable.error(
-                    new InvalidTransactionException("Target wallet id is required for Yanki payments")
+                    new InvalidTransactionException("Source wallet id is required for Yanki payments")
             );
         }
 
-        if (tx.targetProductType() == null) {
+        if (tx.sourceProductType() == null) {
             return Completable.error(
-                    new InvalidTransactionException("Target product type is required for Yanki payments")
+                    new InvalidTransactionException("Source product type is required for Yanki payments")
             );
         }
 
+        if (tx.targetProductId().equals(ProductType.YANKI_WALLET.name())) {
+            return validateYankiReceive(tx);
+        }
+        log.info("starting validation complete");
         return Completable.complete();
     }
 
