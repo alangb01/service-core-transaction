@@ -1,7 +1,3 @@
 spring:
   application:
     name: service-core-transaction
-
-  config:
-    import: "configserver:http://localhost:8888"
-
