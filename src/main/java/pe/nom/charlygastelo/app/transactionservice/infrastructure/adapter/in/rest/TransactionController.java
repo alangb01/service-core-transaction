@@ -8,6 +8,7 @@ import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.core.Single;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
+import pe.nom.charlygastelo.app.transactionservice.application.command.TransactionCommand;
 import pe.nom.charlygastelo.app.transactionservice.application.usecase.CreateTransactionUseCase;
 import pe.nom.charlygastelo.app.transactionservice.application.usecase.GetTransactionUseCase;
 import pe.nom.charlygastelo.app.transactionservice.application.usecase.ListTransactionsUseCase;
@@ -32,8 +33,21 @@ public class TransactionController {
             @RequestBody CreateTransactionRequest request,
             @RequestHeader(HttpHeaders.AUTHORIZATION) String token
     ) {
+        TransactionCommand cmd = new TransactionCommand(
+                null,
+                request.customerId(),
+                request.sourceProductId(),
+                request.targetProductId(),
+                request.sourceProductType(),
+                request.targetProductType(),
+                request.type(),
+                request.amount(),
+                request.commission(),
+                request.description()
+        );
+
         return createUseCase.
-                execute(mapper.toDomain(request))
+                execute(cmd)
                 .map(mapper::toResponse);
     }
 

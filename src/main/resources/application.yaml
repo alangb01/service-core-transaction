@@ -7,5 +7,6 @@ spring:
 
 topic:
   wallet-payment-occurred: wallet.payment-occurred
-  debit-card-accounts-resolved: debit-card.accounts-resolved
+  debit-card-request: card.debit.request
+  debit-card-response: card.debit.response
   transaction-updated: transaction.updated

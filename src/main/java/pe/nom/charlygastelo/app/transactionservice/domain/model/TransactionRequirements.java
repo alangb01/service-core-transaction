@@ -98,16 +98,13 @@ public final class TransactionRequirements {
             // YANKI
             // ------------------------------------------------------------
             case YANKI_SEND -> Set.of(
-                    "DEBIT_CARD_ACCOUNTS_RESOLVED_RESPONSE",
                     "ACCOUNT_WITHDRAW_OCCURRED",
-                    "MOVEMENT_SOURCE_RECORDED"
-            );
-
-            case YANKI_RECEIVE -> Set.of(
-                    "DEBIT_CARD_ACCOUNTS_RESOLVED_RESPONSE",
                     "ACCOUNT_DEPOSIT_OCCURRED",
+                    "MOVEMENT_SOURCE_RECORDED",
                     "MOVEMENT_TARGET_RECORDED"
             );
+
+
 
 //            case YANKI_PAYMENT -> Set.of(
 //                    "ACCOUNT_WITHDRAW_OCCURRED",

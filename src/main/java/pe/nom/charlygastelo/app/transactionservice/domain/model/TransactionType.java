@@ -37,7 +37,6 @@ public enum TransactionType {
     FIXED_TERM_WITHDRAWAL,
 
     // Yanki
-    YANKI_RECEIVE,
     YANKI_SEND,
 
     // Comisiones

@@ -9,6 +9,7 @@ import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Single;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import pe.nom.charlygastelo.app.transactionservice.application.command.TransactionCommand;
 import pe.nom.charlygastelo.app.transactionservice.domain.exception.InvalidTransactionException;
 import pe.nom.charlygastelo.app.transactionservice.domain.model.*;
 import pe.nom.charlygastelo.app.transactionservice.domain.port.*;
@@ -17,46 +18,31 @@ import pe.nom.charlygastelo.app.transactionservice.domain.port.*;
 @RequiredArgsConstructor
 @Slf4j
 public class CreateTransactionUseCase {
-
     private final CreditClientPort creditClient;
     private final AccountClientPort accountClient;
     private final TransactionRepositoryPort repository;
     private final TransactionProgressRepositoryPort progressRepository;
     private final TransactionEventProducerPort producer;
 
-    public Single<Transaction> execute(Transaction transaction) {
-        log.info("Creating transaction. customer={}, type={}",
-                transaction.customerId(), transaction.type());
+    public Single<Transaction> execute(TransactionCommand cmd) {
+        log.info("Preparing transaction for yanki. customer={}",
+                cmd.customerId());
 
-        Transaction pending = new Transaction(
-                transaction.id(),
-                transaction.customerId(),
-                transaction.sourceProductId(),
-                transaction.targetProductId(),
-                transaction.sourceProductType(),
-                transaction.targetProductType(),
-                transaction.type(),
-                TransactionStatus.PENDING,
-                transaction.amount(),
-                transaction.commission(),
-                transaction.description(),
-                Instant.now(),
-                Instant.now()
-        );
+        Transaction tx = prepareTransaction(cmd);
 
-        return Objects.requireNonNull(validate(transaction))
+        return Objects.requireNonNull(validate(tx))
                 .doOnComplete(() ->
                     log.info("Transaction validation completed successfully. customer={}, type={}",
-                        transaction.customerId(),
-                        transaction.type())
+                            tx.customerId(),
+                            tx.type())
                 )
                 .doOnError(error ->
                     log.error("Transaction validation failed. customer={}, error={}",
-                        transaction.customerId(),
+                            tx.customerId(),
                         error.getMessage(),
                         error)
                 )
-                .andThen(repository.save(pending))
+                .andThen(repository.save(tx))
                 .flatMap(saved -> {
                     TransactionProgress progress = new TransactionProgress(
                             saved.id(),
@@ -73,6 +59,25 @@ public class CreateTransactionUseCase {
                         producer.publishTransactionCreated(saved)
                                 .andThen(Single.just(saved))
                 );
+    }
+
+    private Transaction prepareTransaction(TransactionCommand cmd) {
+
+        return new Transaction(
+                cmd.transactionId(),
+                cmd.customerId(),
+                cmd.sourceProductId(),
+                cmd.targetProductId(),
+                ProductType.valueOf(cmd.sourceProductType()),
+                ProductType.valueOf(cmd.targetProductType()),
+                TransactionType.valueOf(cmd.type()),
+                TransactionStatus.PENDING,
+                cmd.amount(),
+                cmd.commission(),
+                cmd.description(),
+                Instant.now(),
+                null
+        );
     }
 
     private Completable validate(Transaction transaction) {
@@ -130,7 +135,6 @@ public class CreateTransactionUseCase {
 
             //YANKI
             case YANKI_SEND -> validateYankiSend(transaction);
-            case YANKI_RECEIVE -> validateYankiReceive(transaction);
 
             case ACCOUNT_MAINTENANCE_FEE -> null;
             case TRANSACTION_FEE -> null;
