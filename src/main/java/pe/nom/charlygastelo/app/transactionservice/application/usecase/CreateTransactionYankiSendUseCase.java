@@ -1,4 +1,4 @@
-package pe.nom.charlygastelo.app.transactionservice.application.usecase.yanki;
+package pe.nom.charlygastelo.app.transactionservice.application.usecase;
 
 import org.springframework.stereotype.Component;
 import io.reactivex.rxjava3.core.Single;
@@ -6,7 +6,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import pe.nom.charlygastelo.app.transactionservice.application.command.TransactionCommand;
 import pe.nom.charlygastelo.app.transactionservice.application.command.TransactionYankiCommand;
-import pe.nom.charlygastelo.app.transactionservice.application.usecase.CreateTransactionUseCase;
 import pe.nom.charlygastelo.app.transactionservice.domain.model.DebitCard;
 import pe.nom.charlygastelo.app.transactionservice.domain.model.ProductType;
 import pe.nom.charlygastelo.app.transactionservice.domain.model.Transaction;

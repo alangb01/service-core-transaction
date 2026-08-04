@@ -4,6 +4,7 @@ import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.core.Maybe;
 import io.reactivex.rxjava3.core.Single;
+import pe.nom.charlygastelo.app.transactionservice.domain.model.Page;
 import pe.nom.charlygastelo.app.transactionservice.domain.model.Transaction;
 
 public interface TransactionRepositoryPort {
@@ -22,4 +23,11 @@ public interface TransactionRepositoryPort {
 
     Completable deleteById(String id);
 
+    Single<Page<Transaction>> findAll(int page, int size);
+
+    Single<Page<Transaction>> findByCustomerId(String customerId, int page, int size);
+
+    Single<Page<Transaction>> findBySourceProductId(String productId, int page, int size);
+
+    Single<Page<Transaction>> findByTargetProductId(String productId, int page, int size);
 }

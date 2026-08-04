@@ -4,7 +4,6 @@ package pe.nom.charlygastelo.app.transactionservice.infrastructure.adapter.in.re
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.core.Single;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +13,7 @@ import pe.nom.charlygastelo.app.transactionservice.application.usecase.GetTransa
 import pe.nom.charlygastelo.app.transactionservice.application.usecase.ListTransactionsUseCase;
 import pe.nom.charlygastelo.app.transactionservice.infrastructure.adapter.in.rest.mapper.TransactionRestMapper;
 import pe.nom.charlygastelo.app.transactionservice.infrastructure.adapter.in.rest.request.CreateTransactionRequest;
+import pe.nom.charlygastelo.app.transactionservice.infrastructure.adapter.in.rest.response.PageResponse;
 import pe.nom.charlygastelo.app.transactionservice.infrastructure.adapter.in.rest.response.TransactionResponse;
 
 @RestController
@@ -58,10 +58,22 @@ public class TransactionController {
                 .toSingle();
     }
 
+//    @GetMapping
+//    public Flowable<TransactionResponse> findAll() {
+//        return listUseCase.all()
+//                .map(mapper::toResponse);
+//    }
+
     @GetMapping
-    public Flowable<TransactionResponse> findAll() {
-        return listUseCase.all()
-                .map(mapper::toResponse);
+    public Single<PageResponse<TransactionResponse>> findAll(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+
+        return listUseCase.all(page, size)
+                .map(result -> PageResponse.from(
+                        result,
+                        mapper::toResponse
+                ));
     }
 
 }

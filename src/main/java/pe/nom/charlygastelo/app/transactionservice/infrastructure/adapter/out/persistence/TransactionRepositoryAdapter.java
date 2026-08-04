@@ -1,5 +1,7 @@
 package pe.nom.charlygastelo.app.transactionservice.infrastructure.adapter.out.persistence;
 
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Flowable;
@@ -7,6 +9,7 @@ import io.reactivex.rxjava3.core.Maybe;
 import io.reactivex.rxjava3.core.Single;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import pe.nom.charlygastelo.app.transactionservice.domain.model.Page;
 import pe.nom.charlygastelo.app.transactionservice.domain.model.Transaction;
 import pe.nom.charlygastelo.app.transactionservice.domain.port.TransactionRepositoryPort;
 
@@ -72,4 +75,83 @@ public class TransactionRepositoryAdapter implements TransactionRepositoryPort {
     }
 
 
+    @Override
+    public Single<Page<Transaction>> findAll(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+
+        return Flowable.fromPublisher(
+                        repository.findAllBy(pageable)
+                )
+                .map(mapper::toDomain)
+                .toList()
+                .zipWith(
+                        Single.fromPublisher(repository.count()),
+                        (content, total) -> new Page<>(
+                                content,
+                                page,
+                                size,
+                                total
+                        )
+                );
+    }
+
+    @Override
+    public Single<Page<Transaction>> findByCustomerId(String customerId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+
+        return Flowable.fromPublisher(
+                        repository.findAllByCustomerId(customerId, pageable)
+                )
+                .map(mapper::toDomain)
+                .toList()
+                .zipWith(
+                        Single.fromPublisher(repository.count()),
+                        (content, total) -> new Page<>(
+                                content,
+                                page,
+                                size,
+                                total
+                        )
+                );
+    }
+
+    @Override
+    public Single<Page<Transaction>> findBySourceProductId(String productId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+
+        return Flowable.fromPublisher(
+                        repository.findAllBySourceProductId(productId, pageable)
+                )
+                .map(mapper::toDomain)
+                .toList()
+                .zipWith(
+                        Single.fromPublisher(repository.count()),
+                        (content, total) -> new Page<>(
+                                content,
+                                page,
+                                size,
+                                total
+                        )
+                );
+    }
+
+    @Override
+    public Single<Page<Transaction>> findByTargetProductId(String productId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+
+        return Flowable.fromPublisher(
+                        repository.findAllByTargetProductId(productId, pageable)
+                )
+                .map(mapper::toDomain)
+                .toList()
+                .zipWith(
+                        Single.fromPublisher(repository.count()),
+                        (content, total) -> new Page<>(
+                                content,
+                                page,
+                                size,
+                                total
+                        )
+                );
+    }
 }

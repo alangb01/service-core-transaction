@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import pe.nom.charlygastelo.app.shared.avro.dto.WalletPaymentOccurredEvent;
 import pe.nom.charlygastelo.app.transactionservice.application.command.TransactionYankiCommand;
-import pe.nom.charlygastelo.app.transactionservice.application.usecase.yanki.CreateTransactionYankiSendUseCase;
+import pe.nom.charlygastelo.app.transactionservice.application.usecase.CreateTransactionYankiSendUseCase;
 
 
 @Component

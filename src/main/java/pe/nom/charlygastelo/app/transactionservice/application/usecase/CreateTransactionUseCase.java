@@ -10,6 +10,7 @@ import io.reactivex.rxjava3.core.Single;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import pe.nom.charlygastelo.app.transactionservice.application.command.TransactionCommand;
+import pe.nom.charlygastelo.app.transactionservice.application.common.EnumMapper;
 import pe.nom.charlygastelo.app.transactionservice.domain.exception.InvalidTransactionException;
 import pe.nom.charlygastelo.app.transactionservice.domain.model.*;
 import pe.nom.charlygastelo.app.transactionservice.domain.port.*;
@@ -23,6 +24,7 @@ public class CreateTransactionUseCase {
     private final TransactionRepositoryPort repository;
     private final TransactionProgressRepositoryPort progressRepository;
     private final TransactionEventProducerPort producer;
+
 
     public Single<Transaction> execute(TransactionCommand cmd) {
         log.info("Preparing transaction for yanki. customer={}",
@@ -62,15 +64,18 @@ public class CreateTransactionUseCase {
     }
 
     private Transaction prepareTransaction(TransactionCommand cmd) {
+        ProductType sourceProductType = EnumMapper.safeValueOf(ProductType.class, cmd.sourceProductType());
+        ProductType targetProductType = EnumMapper.safeValueOf(ProductType.class, cmd.targetProductType());
+        TransactionType transactionType = EnumMapper.safeValueOf(TransactionType.class, cmd.type());
 
         return new Transaction(
                 cmd.transactionId(),
                 cmd.customerId(),
                 cmd.sourceProductId(),
                 cmd.targetProductId(),
-                ProductType.valueOf(cmd.sourceProductType()),
-                ProductType.valueOf(cmd.targetProductType()),
-                TransactionType.valueOf(cmd.type()),
+                sourceProductType,
+                targetProductType,
+                transactionType,
                 TransactionStatus.PENDING,
                 cmd.amount(),
                 cmd.commission(),
