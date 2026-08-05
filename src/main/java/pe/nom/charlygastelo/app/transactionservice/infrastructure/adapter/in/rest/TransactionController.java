@@ -17,7 +17,7 @@ import pe.nom.charlygastelo.app.transactionservice.infrastructure.adapter.in.res
 import pe.nom.charlygastelo.app.transactionservice.infrastructure.adapter.in.rest.response.TransactionResponse;
 
 @RestController
-@RequestMapping("/transactions")
+@RequestMapping("/api/transactions")
 @SecurityRequirement(name = "bearerAuth")
 @RequiredArgsConstructor
 public class TransactionController {
@@ -57,12 +57,6 @@ public class TransactionController {
                 .map(mapper::toResponse)
                 .toSingle();
     }
-
-//    @GetMapping
-//    public Flowable<TransactionResponse> findAll() {
-//        return listUseCase.all()
-//                .map(mapper::toResponse);
-//    }
 
     @GetMapping
     public Single<PageResponse<TransactionResponse>> findAll(
