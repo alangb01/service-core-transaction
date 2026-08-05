@@ -3,7 +3,7 @@ package pe.nom.charlygastelo.app.transactionservice.infrastructure.adapter.in.re
 
 import java.util.List;
 import java.util.function.Function;
-import pe.nom.chrlygastelo.app.transactionservice.domain.model.Page;
+import pe.nom.charlygastelo.app.transactionservice.domain.model.Page;
 
 public record PageResponse<T>(
         int page,
